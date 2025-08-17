@@ -5,10 +5,10 @@ import mlflow
 import logging
 import os
 import dagshub
+from config import DAGSHUB_REPO_OWNER, DAGSHUB_REPO_NAME, MLFLOW_TRACKING_URI
 
-dagshub.init(repo_owner='Pratt33', repo_name='mlops-miniproject', mlflow=True)
-mlflow.set_tracking_uri("https://dagshub.com/Pratt33/mlops-miniproject.mlflow")
-
+dagshub.init(repo_owner=DAGSHUB_REPO_OWNER, repo_name=DAGSHUB_REPO_NAME, mlflow=True)
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
 # logging configuration
 logger = logging.getLogger('model_registration')

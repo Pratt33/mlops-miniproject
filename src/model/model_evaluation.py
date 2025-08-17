@@ -10,9 +10,13 @@ import mlflow
 import mlflow.sklearn
 import dagshub
 import os
+from config import DAGSHUB_REPO_OWNER, DAGSHUB_REPO_NAME, MLFLOW_TRACKING_URI
 
-dagshub.init(repo_owner='Pratt33', repo_name='mlops-miniproject', mlflow=True)
-mlflow.set_tracking_uri("https://dagshub.com/Pratt33/mlops-miniproject.mlflow")
+
+dagshub.init(repo_owner=DAGSHUB_REPO_OWNER, repo_name=DAGSHUB_REPO_NAME, mlflow=True)
+
+# Define MLFLOW_TRACKING_URI
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 #mlflow.set_experiment("BOW VS TFIDF")
 
 # logging configuration
@@ -145,7 +149,7 @@ def main():
                 
                 # Try to log model to MLflow
                 try:
-                    mlflow.sklearn.log_model(clf, "model")
+                    mlflow.sklearn.autolog(clf, "model")
                     logger.debug("Model logged to MLflow successfully")
                 except Exception as model_log_error:
                     logger.warning(f"Failed to log model to MLflow: {model_log_error}")

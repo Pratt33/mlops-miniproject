@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
 # C extensions
 *.so
@@ -19,9 +20,11 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -42,6 +45,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -49,6 +54,15 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -56,36 +70,134 @@ docs/_build/
 # PyBuilder
 target/
 
-# DotEnv configuration
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+myenv/
 
-# Database
-*.db
-*.rdb
+# Spyder project settings
+.spyderproject
+.spyproject
 
-# Pycharm
-.idea
+# Rope project settings
+.ropeproject
 
-# VS Code
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# IDEs
+.idea/
 .vscode/
-
-# Spyder
-.spyproject/
-
-# Jupyter NB Checkpoints
-.ipynb_checkpoints/
-
-# exclude data from source control by default
-/data/
-
-# Mac OS-specific storage files
-.DS_Store
-
-# vim
 *.swp
 *.swo
+*~
 
-# Mypy cache
-.mypy_cache/
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-myenv/
+# MLOps and Data Science specific
+# Exclude data from source control by default
+/data/
+!/data/.gitkeep
+!/data/raw/.gitkeep
+!/data/interim/.gitkeep
+!/data/processed/.gitkeep
+
+# Model artifacts (keep only essential ones)
+/models/*.pkl
+/models/*.joblib
+/models/*.h5
+/models/*.pt
+/models/*.pth
+!/models/.gitkeep
+
+# Experiment tracking
+mlruns/
+.mlflow/
+wandb/
+tensorboard_logs/
+
+# Credentials and API keys
+.dagshub/
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+config.yaml
+secrets.yaml
+.secrets/
+
+# Large files and artifacts
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.hdf5
+*.h5
+*.sqlite
+*.db
+*.pickle
+*.pkl.gz
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Allow small sample files if needed
+!sample_*.csv
+!example_*.csv
+
+# Log files
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# DVC (Data Version Control) - keep tracking files but not cached data
+.dvc/cache/
+.dvc/tmp/
+
+# Airflow
+airflow.cfg
+unittests.cfg
+
+# Local configuration
+local_config.py
+local_settings.py
