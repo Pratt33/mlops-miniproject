@@ -11,8 +11,20 @@ import mlflow.sklearn
 import dagshub
 import os
 
-dagshub.init(repo_owner='Pratt33', repo_name='mlops-miniproject', mlflow=True)
-mlflow.set_tracking_uri("https://dagshub.com/Pratt33/mlops-miniproject.mlflow")
+#setup dagshub credentials foe mlops tracking
+#as authentication will not be done by chche so instead of every time authenticating we'll use token
+dagshub_token=os.getenv('DAGSHUB_PAT')
+
+# Set environment variables for MLflow as it will use the same token
+#if not set then mlflow will not be able to track the experiments
+os.environ['MLFLOW_TRACKING_USERNAME'] = dagshub_token
+os.environ['MLFLOW_TRACKING_PASSWORD'] = dagshub_token
+
+dagshub_url="https://dagshub.com"
+repo_owner='Pratt33'
+repo_name='mlops-miniproject'
+# dagshub.init(repo_owner='Pratt33', repo_name='mlops-miniproject', mlflow=True)
+# mlflow.set_tracking_uri("https://dagshub.com/Pratt33/mlops-miniproject.mlflow")
 #mlflow.set_experiment("BOW VS TFIDF")
 
 # logging configuration
