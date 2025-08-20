@@ -10,13 +10,9 @@ import mlflow
 import mlflow.sklearn
 import dagshub
 import os
-from config import DAGSHUB_REPO_OWNER, DAGSHUB_REPO_NAME, MLFLOW_TRACKING_URI
 
-
-dagshub.init(repo_owner=DAGSHUB_REPO_OWNER, repo_name=DAGSHUB_REPO_NAME, mlflow=True)
-
-# Define MLFLOW_TRACKING_URI
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+dagshub.init(repo_owner='Pratt33', repo_name='mlops-miniproject', mlflow=True)
+mlflow.set_tracking_uri("https://dagshub.com/Pratt33/mlops-miniproject.mlflow")
 #mlflow.set_experiment("BOW VS TFIDF")
 
 # logging configuration
@@ -107,6 +103,29 @@ def save_model_info(run_id: str, model_path: str, file_path: str) -> None:
         logger.error('Error occurred while saving the model info: %s', e)
         raise
 
+def log_model_to_mlflow_dagshub(clf):
+    """Log model to MLflow using DagsHub-compatible method."""
+    try:
+        # Try standard method first
+        mlflow.sklearn.log_model(clf, "model")
+        logger.debug("Model logged to MLflow successfully")
+        return True
+    except Exception as model_log_error:
+        logger.warning(f"Standard model logging failed: {model_log_error}")
+        
+        # Fallback: Log as pickle artifact (DagsHub compatible)
+        try:
+            mymodel_path = "mymodel.pkl"
+            with open(mymodel_path, 'wb') as f:
+                pickle.dump(clf, f)
+            mlflow.log_artifact(mymodel_path, "model")
+            os.remove(mymodel_path)  # Clean up
+            logger.debug("Model logged as artifact successfully")
+            return True
+        except Exception as artifact_error:
+            logger.warning(f"Artifact model logging also failed: {artifact_error}")
+            return False
+
 def main():
     try:
         # Create reports directory if it doesn't exist
@@ -147,16 +166,13 @@ def main():
                         if param_value is not None:  # Skip None values
                             mlflow.log_param(param_name, str(param_value)[:250])  # Truncate long params
                 
-                # Try to log model to MLflow
-                try:
-                    mlflow.sklearn.autolog(clf, "model")
-                    logger.debug("Model logged to MLflow successfully")
-                except Exception as model_log_error:
-                    logger.warning(f"Failed to log model to MLflow: {model_log_error}")
+                # Try to log model to MLflow with DagsHub fix
+                model_logged = log_model_to_mlflow_dagshub(clf)
                 
                 # Update model_info with run_id
                 model_info['run_id'] = run.info.run_id
                 model_info['mlflow_logged'] = True
+                model_info['model_logged'] = model_logged
                 
                 # Try to log artifacts
                 try:
