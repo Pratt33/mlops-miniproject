@@ -70,7 +70,17 @@ def promote_model_dagshub_compatible():
             )
             
             if not staging_runs:
-                raise Exception("No staging model found")
+                # If no staging runs found, look for any runs with model_name tag
+                print("No staging models found, looking for any registered models...")
+                staging_runs = client.search_runs(
+                    experiment_ids=[experiment.experiment_id],
+                    filter_string="tags.model_name = 'my_model'",
+                    order_by=["start_time DESC"],
+                    max_results=1
+                )
+                
+            if not staging_runs:
+                raise Exception("No models found with model_name tag")
                 
             staging_run = staging_runs[0]
             staging_run_id = staging_run.info.run_id
@@ -86,20 +96,22 @@ def promote_model_dagshub_compatible():
             for prod_run in production_runs:
                 with mlflow.start_run(run_id=prod_run.info.run_id):
                     mlflow.set_tag("model_stage", "Archived")
-                    mlflow.set_tag("archived_at", mlflow.utils.time_utils.get_current_time_millis())
+                    import time
+                    mlflow.set_tag("archived_at", int(time.time() * 1000))
                     print(f"Archived production model from run: {prod_run.info.run_id}")
             
             # Promote staging model to production
             with mlflow.start_run(run_id=staging_run_id):
                 mlflow.set_tag("model_stage", "Production")
-                mlflow.set_tag("promoted_at", mlflow.utils.time_utils.get_current_time_millis())
+                import time
+                mlflow.set_tag("promoted_at", int(time.time() * 1000))
                 mlflow.set_tag("promoted_from", "Staging")
                 
                 # Log promotion metadata
                 promotion_info = {
                     "model_name": model_name,
                     "promoted_run_id": staging_run_id,
-                    "promoted_at": mlflow.utils.time_utils.get_current_time_millis(),
+                    "promoted_at": int(time.time() * 1000),
                     "promoted_from": "Staging",
                     "promoted_to": "Production",
                     "promotion_method": "tag_based_fallback"
@@ -125,10 +137,11 @@ def promote_model_dagshub_compatible():
                     model_info = json.load(f)
                 
                 # Create promotion record
+                import time
                 promotion_record = {
                     "model_name": model_name,
                     "run_id": model_info.get('run_id', 'unknown'),
-                    "promoted_at": mlflow.utils.time_utils.get_current_time_millis(),
+                    "promoted_at": int(time.time() * 1000),
                     "stage": "Production",
                     "promotion_method": "local_record",
                     "model_path": model_info.get('model_path', './models/model.pkl'),
