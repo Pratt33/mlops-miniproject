@@ -31,7 +31,8 @@ class TestModelLoading(unittest.TestCase):
         cls.new_model = cls.load_model_dagshub_compatible()
 
         # Load the vectorizer
-        cls.vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+        with open('models/vectorizer.pkl', 'rb') as f:
+            cls.vectorizer = pickle.load(f)
 
         # Load holdout test data
         cls.holdout_data = pd.read_csv('data/processed/test_bow.csv')
@@ -86,7 +87,8 @@ class TestModelLoading(unittest.TestCase):
                     return model
                 except:
                     # Fallback to local pickle file
-                    local_model = pickle.load(open('./models/model.pkl', 'rb'))
+                    with open('./models/model.pkl', 'rb') as f:
+                        local_model = pickle.load(f)
                     print("Model loaded from local pickle file")
                     return LocalModelWrapper(local_model)
                     
@@ -94,16 +96,31 @@ class TestModelLoading(unittest.TestCase):
             print(f"Local loading failed: {local_error}")
         
         # Final fallback: Load directly from local file
-        local_model = pickle.load(open('./models/model.pkl', 'rb'))
+        with open('./models/model.pkl', 'rb') as f:
+            local_model = pickle.load(f)
         print("Model loaded from direct local pickle file")
         return LocalModelWrapper(local_model)
 
     @staticmethod
-    def get_latest_model_version(model_name, stage="Staging"):
+    def get_latest_model_version(model_name, stage=None):
+        """Get latest model version, handling deprecation warnings."""
         try:
             client = mlflow.MlflowClient()
-            latest_version = client.get_latest_versions(model_name, stages=[stage])
-            return latest_version[0].version if latest_version else None
+            if stage:
+                # Use deprecated method with warning suppression for backward compatibility
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", FutureWarning)
+                    latest_version = client.get_latest_versions(model_name, stages=[stage])
+                    return latest_version[0].version if latest_version else None
+            else:
+                # Use newer method without stages
+                try:
+                    model_versions = client.search_model_versions(f"name='{model_name}'")
+                    if model_versions:
+                        return max([int(mv.version) for mv in model_versions])
+                except:
+                    return None
         except Exception:
             return None
 
