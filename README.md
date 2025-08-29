@@ -1,3 +1,4 @@
+docker hub repo: hub.docker.com/repository/docker/pratt333/emotion2
 mlops-miniproject
 ==============================
 
